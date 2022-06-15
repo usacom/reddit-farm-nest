@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+    # web:
+    #     image: nginx:latest
+    #     ports:
+    #         - "88:80"
+    #     volumes:
+    #         - ./nginx/conf.d:/etc/nginx/conf.d/
+    #         - ./app/:/var/www/html
+    node:
+        user: 5000:5000
+        # build: .docker
+        build:
+          context: ./app
+          dockerfile: Dockerfile
+        command: ["./docker-entrypoint.sh"]
+        volumes:
+          - ./app:/usr/src/app
+          - /usr/src/app/node_modules
+        working_dir: /usr/src/app
+        depends_on:
+            - db
+    db:
+        image: postgres:14.3-alpine
+        restart: always
+        environment: 
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: nest-farm
+            POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+        volumes:
+            - ./db:/var/lib/postgresql/data
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+            - 8888:8080
+
+networks:
+    cse:
+        external: true
