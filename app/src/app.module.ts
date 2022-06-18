@@ -8,7 +8,7 @@ import { TypeOrmConfigService } from './shared/typeorm/typeorm.service';
 import { ApiModule } from './api/api.module';
 import { RedditModule } from './shared/reddit/reddit.module';
 
-const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
+const envFilePath: string = getEnvPath(`.`);
 
 @Module({
   imports: [
