@@ -1,42 +1,67 @@
-version: '3.7'
-
+version: '3.8'
 services:
-    # web:
-    #     image: nginx:latest
-    #     ports:
-    #         - "88:80"
-    #     volumes:
-    #         - ./nginx/conf.d:/etc/nginx/conf.d/
-    #         - ./app/:/var/www/html
-    node:
-        user: 5000:5000
-        # build: .docker
-        build:
-          context: ./app
-          dockerfile: Dockerfile
-        command: ["./docker-entrypoint.sh"]
-        volumes:
-          - ./app:/usr/src/app
-          - /usr/src/app/node_modules
-        working_dir: /usr/src/app
-        depends_on:
-            - db
-    db:
-        image: postgres:14.3-alpine
-        restart: always
-        environment: 
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: nest-farm
-            POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
-        volumes:
-            - ./db:/var/lib/postgresql/data
-    adminer:
-        image: adminer
-        restart: always
-        ports:
-            - 8888:8080
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nest-nginx
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      - NGINX_PORT=${NGINX_PORT}
+      - BACKEND_PORT=${BACKEND_PORT}
+    ports:
+      - 82:${NGINX_PORT}
+    depends_on:
+      - api
+      - postgres
+    networks:
+      - nest-farm-network
+  api:
+    container_name: "nest-api_${NODE_ENV}"
+    environment:
+      - NODE_ENV:${NODE_ENV}
+    build:
+      context: ./app
+      target: "${NODE_ENV}"
+      dockerfile: Dockerfile
+    command: ["./wait-for-postgres.sh","./docker-entrypoint.sh"]
+    env_file:
+      - .env
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    depends_on:
+      - postgres
+    networks:
+      - nest-farm-network
+    volumes:
+      - ./app:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+  postgres:
+    container_name: nest-postgres
+    image: postgres:latest
+    networks:
+      - nest-farm-network
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: "${POSTGRES_DB_PREFIX}_${POSTGRES_DB_NAME}"
+      PG_DATA: /var/lib/postgresql/data
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+  pgadmin:
+    ports:
+      - ${PGADMIN_LISTEN_PORT}:${PGADMIN_LISTEN_PORT}
+    links:
+      - postgres:postgres
+    container_name: nest-pgadmin
+    image: dpage/pgadmin4
+    volumes:
+      - ./pgdata/pgadmin:/root/.pgadmin
+    env_file:
+      - .env
+    networks:
+      - nest-farm-network
 
 networks:
-    cse:
-        external: true
+  nest-farm-network:

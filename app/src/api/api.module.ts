@@ -5,6 +5,8 @@ import { TokenModule } from './token/token.module';
 import { PostModule } from './post/post.module';
 
 @Module({
+  // imports: [UserModule],
+  // imports: [UserModule, AuthModule],
   imports: [UserModule, AuthModule, PostModule],
 })
 export class ApiModule {}

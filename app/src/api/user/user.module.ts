@@ -8,11 +8,17 @@ import { RedditModule } from '../../shared/reddit/reddit.module';
 import { RedditService } from '../../shared/reddit/reddit.service';
 import { TokenModule } from '../token/token.module';
 import { TokenService } from '../token/token.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [TokenModule, RedditModule, TypeOrmModule.forFeature([User, Token])],
+  imports: [
+    RedditModule,
+    TokenModule,
+    TypeOrmModule.forFeature([User, Token]),
+    ConfigModule,
+  ],
   controllers: [UserController],
-  providers: [UserService, RedditService, TokenService],
+  providers: [UserService, RedditService, TokenService, ConfigService],
   exports: [UserService],
 })
 export class UserModule {}

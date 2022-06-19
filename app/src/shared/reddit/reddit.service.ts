@@ -18,9 +18,9 @@ export class RedditService {
   public createRedditService(refreshToken: string): snoowrap {
     console.log('refreshToken', refreshToken);
     const r = new snoowrap({
-      userAgent: this.config.get<string>('REDDIT_AGENT'),
-      clientId: this.config.get<string>('REDDIT_CLIENT_ID'),
-      clientSecret: this.config.get<string>('REDDIT_CLIENT_SECRET'),
+      userAgent: this.config.get('reddit').REDDIT_AGENT,
+      clientId: this.config.get('reddit').REDDIT_CLIENT_ID,
+      clientSecret: this.config.get('reddit').REDDIT_CLIENT_SECRET,
       refreshToken: refreshToken,
     });
     return r;
@@ -31,13 +31,13 @@ export class RedditService {
       method: 'POST',
       uri: this.baseUrl + 'access_token',
       auth: {
-        user: this.config.get<string>('REDDIT_CLIENT_ID'),
-        pass: this.config.get<string>('REDDIT_CLIENT_SECRET'),
+        user: this.config.get('reddit').REDDIT_CLIENT_ID,
+        pass: this.config.get('reddit').REDDIT_CLIENT_SECRET,
       },
       form: {
         grant_type: 'authorization_code',
         code,
-        redirect_uri: this.config.get<string>('REDDIT_REDIRECT_URI'),
+        redirect_uri: this.config.get('reddit').REDDIT_REDIRECT_URI,
       },
       json: true, // Automatically stringifies the body to JSON
     };
@@ -52,10 +52,10 @@ export class RedditService {
   public getAuthUrl() {
     const state = Crypto.randomBytes(16).toString('base64');
     return `${this.baseUrl}authorize?${qs.stringify({
-      client_id: this.config.get<string>('REDDIT_CLIENT_ID'),
+      client_id: this.config.get('reddit').REDDIT_CLIENT_ID,
       response_type: 'code',
       state,
-      redirect_uri: this.config.get<string>('REDDIT_REDIRECT_URI'),
+      redirect_uri: this.config.get('reddit').REDDIT_REDIRECT_URI,
       duration: 'permanent',
       scope: [
         'account',

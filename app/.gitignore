@@ -1,13 +1,11 @@
-
 # compiled output
-/app/dist
-/app/node_modules
+/dist
+/node_modules
 
 # Logs
 logs
 *.log
 npm-debug.log*
-pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
@@ -16,8 +14,8 @@ lerna-debug.log*
 .DS_Store
 
 # Tests
-/app/coverage
-/app/.nyc_output
+/coverage
+/.nyc_output
 
 # IDEs and editors
 /.idea
@@ -34,6 +32,3 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-/pgdata
-.env

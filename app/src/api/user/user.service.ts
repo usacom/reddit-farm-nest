@@ -11,6 +11,8 @@ import { TokenService } from '../token/token.service';
 
 @Injectable()
 export class UserService {
+  private saltOrRounds = 10;
+
   @InjectRepository(User)
   private readonly repository: Repository<User>;
 
@@ -24,9 +26,10 @@ export class UserService {
   private readonly tokenService: TokenService;
 
   public getUser(id: number): Promise<User> {
-    return this.repository.createQueryBuilder('user')
-      .leftJoinAndSelect("user.tokens", "token")
-      .where("user.id = :id", { id })
+    return this.repository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.tokens', 'token')
+      .where('user.id = :id', { id })
       .getOne();
 
     // return this.repository.findOne({ where: { id }, relations: { tokens: true, },});
@@ -49,9 +52,7 @@ export class UserService {
     console.log('userData', userData);
     const user: User = new User();
 
-    const salt = await bcrypt.genSalt(
-      Number(this.config.get<number>('BCRYPT_SALTROUNDS')),
-    );
+    const salt = await bcrypt.genSalt(this.saltOrRounds);
     const token = await this.tokenService.createToken(tokenData);
     user.tokens = [token];
     user.username = userData.name;
