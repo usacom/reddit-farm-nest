@@ -11,7 +11,7 @@ RUN npm i -g typeorm ts-node
 
 COPY . .
 
-RUN npm run build
+# RUN npm run build
 
 FROM node:fermium-alpine as prod
 RUN apk --update add postgresql-client
